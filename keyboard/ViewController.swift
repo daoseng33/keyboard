@@ -19,6 +19,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
         self.bottomTextField.delegate = self
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         if textField == self.bottomTextField {
             print("text field should beging editing")
