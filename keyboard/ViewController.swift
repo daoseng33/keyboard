@@ -8,18 +8,50 @@
 
 import UIKit
 
-class ViewController: UIViewController {
-
+class ViewController: UIViewController, UITextFieldDelegate {
+    @IBOutlet weak var topTextField: UITextField!
+    @IBOutlet weak var bottomTextField: UITextField!
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(sender:)))
+        self.view.addGestureRecognizer(tap)
+        self.bottomTextField.delegate = self
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        if textField == self.bottomTextField {
+            print("text field should beging editing")
+            NotificationCenter.default.addObserver(self,
+                                                   selector: #selector(self.keyboardNotification(notification:)),
+                                                   name: NSNotification.Name.UIKeyboardWillChangeFrame,
+                                                   object: nil)
+        }
+        
+        return true
     }
-
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        print("text filed did end editing")
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc func handleTap(sender: UITapGestureRecognizer? = nil) {
+        // handling code
+        self.view.endEditing(true)
+    }
+    
+    @objc func keyboardNotification(notification: NSNotification) {
+        if let userInfo = notification.userInfo {
+            let keyboardFrame: CGRect = (userInfo[UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+            
+            UIView.animate(withDuration: 0.3, animations: { () -> Void in
+                var frame = self.view.frame
+                frame.origin.y = keyboardFrame.minY - self.view.frame.height
+                self.view.frame = frame
+            })
+        }
+    }
 
 }
 
